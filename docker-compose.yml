@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: project-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: nckh_tdc
+      MYSQL_DATABASE: nckh_tdc
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./backend-laravel
+    container_name: project-backend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend-laravel:/var/www/html
+    depends_on:
+      - mysql
+
+  frontend:
+    build: ./frontend-reactjs
+    container_name: project-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend-reactjs:/app
+      - /app/node_modules
+    working_dir: /app
+    command: ["npm", "run", "dev", "--", "--host"]
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: project-phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: nckh_tdc
+      UPLOAD_LIMIT: 128M
+    depends_on:
+      - mysql
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: project-meilisearch
+    environment:
+      - MEILI_MASTER_KEY=mysecret
+    ports:
+      - "7700:7700"
+    restart: always
+
+volumes:
+  mysql_data:
