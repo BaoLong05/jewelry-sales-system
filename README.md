@@ -1,1 +1,1 @@
-# clinic-booking-system
+# jewelry-sales-system
