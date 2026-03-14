@@ -5,30 +5,30 @@ services:
     image: mysql:8.0
     container_name: project-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: nckh_tdc
-      MYSQL_DATABASE: nckh_tdc
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: building_a_material_management_system_tdc
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
   backend:
-    build: ./backend-laravel
+    build: ./backend
     container_name: project-backend
     ports:
       - "8000:80"
     volumes:
-      - ./backend-laravel:/var/www/html
+      - ./backend:/var/www/html
     depends_on:
       - mysql
 
   frontend:
-    build: ./frontend-reactjs
-    container_name: project-frontend
+    build: ./client
+    container_name: project-client
     ports:
       - "5173:5173"
     volumes:
-      - ./frontend-reactjs:/app
+      - ./client:/app
       - /app/node_modules
     working_dir: /app
     command: ["npm", "run", "dev", "--", "--host"]
@@ -46,7 +46,7 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: nckh_tdc
+      MYSQL_ROOT_PASSWORD: 1234
       UPLOAD_LIMIT: 128M
     depends_on:
       - mysql
