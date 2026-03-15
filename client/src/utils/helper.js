@@ -52,3 +52,12 @@ export const logoutUser = async () => {
   const res = await axios.post(apiUrl("logout"));
   return res.data;
 };
+
+//Product
+// 1. danh sách sản phẩm + tìm kiếm + pagination
+export const getProducts = async (params = {}) => {
+  const res = await axios.get(apiUrl("products"), {
+    params
+  });
+  return res.data;
+};

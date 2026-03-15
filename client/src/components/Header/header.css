@@ -1,0 +1,261 @@
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.mobile-menu-toggle span {
+  width: 100%;
+  height: 2px;
+  background: #fff;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle.active span:first-child {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.active span:last-child {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 998;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile Contact & Currency */
+.mobile-contact {
+  display: none;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.mobile-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 15px;
+}
+
+.mobile-contact-item a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.mobile-contact-item a:hover {
+  color: #d4af37;
+}
+
+.mobile-currency {
+  display: none;
+  margin-top: 20px;
+}
+
+.mobile-currency .currency-select {
+  width: 100%;
+  background: #2a2a2a;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .header-main {
+    padding: 15px 30px;
+  }
+  
+  .main-nav {
+    gap: 25px;
+  }
+}
+
+@media (max-width: 992px) {
+  .header-top {
+    display: none; /* Hide top bar on mobile */
+  }
+  
+  .header-main {
+    padding: 15px 20px;
+  }
+  
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .main-nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 350px;
+    height: 100vh;
+    background: #0a0a0a;
+    flex-direction: column;
+    padding: 100px 30px 30px;
+    transition: right 0.3s ease;
+    z-index: 999;
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+  }
+  
+  .main-nav.open {
+    right: 0;
+  }
+  
+  .nav-link {
+    font-size: 16px;
+    padding: 15px 0;
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  }
+  
+  .nav-link:last-child {
+    border-bottom: none;
+  }
+  
+  .nav-link::after {
+    display: none;
+  }
+  
+  .mobile-contact,
+  .mobile-currency {
+    display: block;
+  }
+  
+  .header-actions {
+    gap: 15px;
+  }
+  
+  .action-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-main {
+    padding: 12px 15px;
+  }
+  
+  .logo-icon {
+    font-size: 32px;
+  }
+  
+  .logo-line {
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  
+  .logo-line.gold {
+    font-size: 16px;
+  }
+  
+  .main-nav {
+    width: 85%;
+    padding: 80px 20px 20px;
+  }
+  
+  .header-actions {
+    gap: 12px;
+  }
+  
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .cart-count {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+    top: -3px;
+    right: -3px;
+  }
+}
+
+/* Landscape Mode */
+@media (max-height: 600px) and (orientation: landscape) {
+  .main-nav {
+    padding: 60px 30px 30px;
+  }
+  
+  .nav-link {
+    padding: 10px 0;
+  }
+  
+  .mobile-contact {
+    margin-top: 20px;
+  }
+  
+  .mobile-contact-item {
+    margin-bottom: 10px;
+  }
+}
+
+/* Animation for mobile menu items */
+.main-nav.open .nav-link {
+  animation: slideInRight 0.3s ease forwards;
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.main-nav.open .nav-link:nth-child(1) { animation-delay: 0.1s; }
+.main-nav.open .nav-link:nth-child(2) { animation-delay: 0.15s; }
+.main-nav.open .nav-link:nth-child(3) { animation-delay: 0.2s; }
+.main-nav.open .nav-link:nth-child(4) { animation-delay: 0.25s; }
+.main-nav.open .nav-link:nth-child(5) { animation-delay: 0.3s; }
+.main-nav.open .nav-link:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes slideInRight {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Search button active state */
+.search-toggle.active svg {
+  color: #d4af37;
+  transform: scale(1.1);
+}
+
+/* Prevent body scroll when menu is open */
+body.menu-open {
+  overflow: hidden;
+}
