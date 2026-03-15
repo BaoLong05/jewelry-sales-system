@@ -15,15 +15,15 @@ class ProductImageSeeder extends Seeder
          DB::table('product_images')->insert([
             [
                 'product_id'=>1,
-                'image_url'=>'products/ring1.jpg'
+                'image_url'=>'products/ruby.jpg'
             ],
             [
                 'product_id'=>2,
-                'image_url'=>'products/necklace1.jpg'
+                'image_url'=>'products/vang.jpg'
             ],
             [
                 'product_id'=>3,
-                'image_url'=>'products/bracelet1.jpg'
+                'image_url'=>'products/kimcuong.jpg'
             ]
         ]);
     }
