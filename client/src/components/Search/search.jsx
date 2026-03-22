@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { getProducts, BASE_URL } from "../../utils/helper";
 import "./Search.css";
 
-const Search = ({ isOpen, onClose }) => {
+const Search = ({ isOpen, onClose, onSearch }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,7 +62,7 @@ const Search = ({ isOpen, onClose }) => {
     };
   }, [isOpen, onClose]);
 
-  // Simulate search results (you'll replace with actual API call)
+  // Handle search with real API
   const handleSearch = async (term) => {
     if (!term.trim()) {
       setSearchResults([]);
@@ -71,62 +72,52 @@ const Search = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      // TODO: Replace with your actual API call
-      // const response = await searchProducts(term);
-      // setSearchResults(response.data);
+      // Use real API call
+      const response = await getProducts({ search: term, page: 1, per_page: 5 });
 
-      // Simulated results for demo
-      setTimeout(() => {
-        const mockResults = [
-          {
-            id: 1,
-            name: "Nhẫn kim cương Solitaire",
-            category: "Nhẫn",
-            price: "125,000,000₫",
-            image: "💍",
-            url: "/product/1"
-          },
-          {
-            id: 2,
-            name: "Dây chuyền vàng hồng",
-            category: "Dây chuyền",
-            price: "45,000,000₫",
-            image: "📿",
-            url: "/product/2"
-          },
-          {
-            id: 3,
-            name: "Bông tai ngọc trai",
-            category: "Bông tai",
-            price: "28,000,000₫",
-            image: "💎",
-            url: "/product/3"
-          },
-          {
-            id: 4,
-            name: "Đồng hồ Tourbillon",
-            category: "Đồng hồ",
-            price: "1,250,000,000₫",
-            image: "⌚",
-            url: "/product/4"
-          }
-        ].filter(item => 
-          item.name.toLowerCase().includes(term.toLowerCase()) ||
-          item.category.toLowerCase().includes(term.toLowerCase())
-        );
+      if (response.success) {
+        const products = response.data.data || [];
+        const formattedResults = products.map(product => ({
+          id: product.id,
+          name: product.name,
+          category: product.material || "Trang sức",
+          price: formatPrice(product.price),
+          image: getProductImage(product),
+          url: `/product/${product.id}`
+        }));
 
-        setSearchResults(mockResults);
-        setIsLoading(false);
+        setSearchResults(formattedResults);
+      } else {
+        setSearchResults([]);
+      }
 
-        // Save to recent searches
-        if (term.trim() && !recentSearches.includes(term)) {
-          setRecentSearches(prev => [term, ...prev].slice(0, 5));
-        }
-      }, 500);
+      // Save to recent searches
+      if (term.trim() && !recentSearches.includes(term)) {
+        setRecentSearches(prev => [term, ...prev].slice(0, 5));
+      }
     } catch (error) {
       console.error("Search error:", error);
+      setSearchResults([]);
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  // Format price
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(Number(price) || 0);
+  };
+
+  // Get product image
+  const getProductImage = (product) => {
+    const images = product?.images || [];
+    if (images.length > 0 && images[0]?.image_url) {
+      return `${BASE_URL}/storage/${images[0].image_url}`;
+    }
+    return "/no-image.png";
   };
 
   // Debounce search
@@ -143,8 +134,9 @@ const Search = ({ isOpen, onClose }) => {
   };
 
   const handleViewAllResults = () => {
-    // TODO: Navigate to search results page
-    console.log("View all results for:", searchTerm);
+    if (onSearch && searchTerm.trim()) {
+      onSearch(searchTerm);
+    }
     onClose();
   };
 
@@ -210,7 +202,13 @@ const Search = ({ isOpen, onClose }) => {
                   onClick={onClose}
                 >
                   <div className="result-image">
-                    <span className="result-icon">{product.image}</span>
+                    <img 
+                      src={product.image} 
+                      alt={product.name}
+                      onError={(e) => {
+                        e.target.src = "/no-image.png";
+                      }}
+                    />
                   </div>
                   <div className="result-info">
                     <h4 className="result-name">{product.name}</h4>

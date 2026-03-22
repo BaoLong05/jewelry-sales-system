@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Search from "../Search/search";
 import "./Header.css";
 
-const Header = () => {
+const Header = ({ onSearch }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -152,6 +152,18 @@ const Header = () => {
                 <option value="EUR">EUR - €</option>
               </select>
             </div>
+
+            {/* Mobile Account Button */}
+            <Link 
+              to="/login" 
+              className="mobile-account-btn"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              ĐĂNG NHẬP
+            </Link>
           </nav>
 
           {/* Header Actions */}
@@ -166,20 +178,20 @@ const Header = () => {
               </svg>
             </button>
             
-            <button className="action-btn account-btn" aria-label="Tài khoản">
+            <Link to="/login" className="action-btn account-btn" aria-label="Đăng nhập">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
-            </button>
+            </Link>
             
-            <button className="action-btn cart-btn" aria-label="Giỏ hàng">
+            <Link to="/Cart" className="action-btn cart-btn" aria-label="Giỏ hàng">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M16 21C16.5523 21 17 20.5523 17 20C17 19.4477 16.5523 19 16 19C15.4477 19 15 19.4477 15 20C15 20.5523 15.4477 21 16 21Z" stroke="currentColor" strokeWidth="1.5"/>
                 <path d="M6 21C6.55228 21 7 20.5523 7 20C7 19.4477 6.55228 19 6 19C5.44772 19 5 19.4477 5 20C5 20.5523 5.44772 21 6 21Z" stroke="currentColor" strokeWidth="1.5"/>
                 <path d="M2 3H5L7.5 15H18L21 6H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
               <span className="cart-count">0</span>
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -193,6 +205,7 @@ const Header = () => {
       <Search 
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+        onSearch={onSearch}
       />
     </>
   );

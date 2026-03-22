@@ -2,6 +2,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductsController;
+use App\Http\Controllers\Api\CartsController;
 
 
 //auth
@@ -20,4 +21,15 @@ Route::middleware('auth:sanctum')->group(function(){
 //product 
 Route::get('/products', [ProductsController::class, 'index_product']);
 Route::get('/products/{id}', [ProductsController::class, 'show_product']);
+
+
+
+//cart - requires authentication
+Route::middleware('auth:sanctum')->group(function(){
+    Route::get('/cart', [CartsController::class, 'get_cart']);
+    Route::post('/cart/add', [CartsController::class, 'add_to_cart']);
+    Route::put('/cart/items/{id}', [CartsController::class, 'update_cart_item']);
+    Route::delete('/cart/items/{id}', [CartsController::class, 'remove_from_cart']);
+    Route::post('/cart/clear', [CartsController::class, 'clear_cart']);
+});
 ?>

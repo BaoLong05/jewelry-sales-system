@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import Header from "../../components/Header/header";
 import Footer from "../../components/Footer/footer";
 import "./home.css";
-import { getProducts, BASE_URL } from "../../utils/helper";
+import { getProducts, BASE_URL, addToCart } from "../../utils/helper";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
 
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -17,14 +19,11 @@ const Home = () => {
   });
 
   // ================= FETCH PRODUCTS =================
-  const fetchProducts = async (page = 1) => {
+  const fetchProducts = async (page = 1, search = "") => {
     try {
       setLoading(true);
 
-      const res = await getProducts({ page });
-
-      console.log("API RESPONSE:", res);
-      console.log("PRODUCTS:", res?.data?.data);
+      const res = await getProducts({ page, search });
 
       if (res?.success) {
         const productList = res.data.data || [];
@@ -41,10 +40,12 @@ const Home = () => {
         setError(null);
       } else {
         setError("Không thể tải sản phẩm");
+        toast.error("Không thể tải sản phẩm");
       }
     } catch (err) {
       console.error(err);
       setError("Có lỗi xảy ra khi tải sản phẩm");
+      toast.error("Có lỗi xảy ra khi tải sản phẩm");
     } finally {
       setLoading(false);
     }
@@ -79,8 +80,53 @@ const Home = () => {
 
   // ================= PAGINATION =================
   const handlePageChange = (page) => {
-    fetchProducts(page);
+    fetchProducts(page, searchValue);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // ================= SEARCH =================
+  const handleSearch = (searchTerm) => {
+    setSearchValue(searchTerm);
+    fetchProducts(1, searchTerm);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchProducts(1, searchValue);
+  };
+
+  // ================= ADD TO CART =================
+  const handleAddToCart = async (product) => {
+    try {
+      const res = await addToCart({
+        product_id: product.id,
+        quantity: 1
+      });
+      
+      if (res.success) {
+        toast.success(`✓ Đã thêm ${product.name} vào giỏ hàng`, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      } else {
+        toast.error(res.message || "Không thể thêm sản phẩm", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (err) {
+      toast.error("❌ Vui lòng đăng nhập để thêm sản phẩm", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      console.error("Add to cart error:", err);
+    }
   };
 
   // ================= PRICE FORMAT =================
@@ -104,7 +150,7 @@ const Home = () => {
 
   return (
     <div className="luxury-home">
-      <Header />
+      <Header onSearch={handleSearch} />
 
       <main>
         {/* HERO */}
@@ -118,7 +164,7 @@ const Home = () => {
               Ánh sáng mặt trời được chế tác thành những viên kim cương hoàn hảo.
             </p>
 
-            <a href="#products" className="btn btn-primary">
+            <a href="#products" className="btn btn-outline">
               KHÁM PHÁ NGAY
             </a>
           </div>
@@ -153,7 +199,6 @@ const Home = () => {
             {error && (
               <div className="error-container">
                 <p>{error}</p>
-
                 <button
                   className="btn btn-outline"
                   onClick={() => fetchProducts()}
@@ -165,9 +210,11 @@ const Home = () => {
 
             {/* EMPTY */}
             {!loading && !error && products.length === 0 && (
-              <p style={{ textAlign: "center", marginTop: 40 }}>
-                Không có sản phẩm
-              </p>
+              <div className="empty-state">
+                <span className="empty-icon">📦</span>
+                <h3>Không có sản phẩm</h3>
+                <p>Hãy thử tìm kiếm với từ khóa khác</p>
+              </div>
             )}
 
             {/* PRODUCTS GRID */}
@@ -183,11 +230,11 @@ const Home = () => {
                         className="product-card animate-on-scroll"
                         style={{ animationDelay: `${index * 0.1}s` }}
                       >
-                        {product.stock < 5 && (
+                        {product.stock < 5 && product.stock > 0 && (
                           <div className="product-badge">SẮP HẾT</div>
                         )}
 
-                        {Number(product.price) > 1000 && (
+                        {Number(product.price) > 100000000 && (
                           <div className="product-badge gold">CAO CẤP</div>
                         )}
 
@@ -200,8 +247,22 @@ const Home = () => {
                               e.currentTarget.src = "/no-image.png";
                             }}
                           />
-
                           <div className="product-overlay"></div>
+                          <div className="product-actions">
+                            <button 
+                              className="product-action"
+                              onClick={() => handleAddToCart(product)}
+                              aria-label="Thêm vào giỏ hàng"
+                            >
+                              🛒
+                            </button>
+                            <button 
+                              className="product-action"
+                              aria-label="Xem nhanh"
+                            >
+                              👁
+                            </button>
+                          </div>
                         </div>
 
                         <div className="product-info">
@@ -222,9 +283,7 @@ const Home = () => {
 
                           <button
                             className="product-btn"
-                            onClick={() =>
-                              console.log("Add to cart:", product.id)
-                            }
+                            onClick={() => handleAddToCart(product)}
                           >
                             THÊM VÀO GIỎ
                           </button>
@@ -243,23 +302,37 @@ const Home = () => {
                         handlePageChange(pagination.current_page - 1)
                       }
                     >
-                      Prev
+                      ‹ Prev
                     </button>
 
                     {[...Array(pagination.last_page)].map((_, i) => {
                       const page = i + 1;
-
-                      return (
-                        <button
-                          key={page}
-                          className={
-                            pagination.current_page === page ? "active" : ""
-                          }
-                          onClick={() => handlePageChange(page)}
-                        >
-                          {page}
-                        </button>
-                      );
+                      
+                      // Show limited page numbers with ellipsis
+                      if (
+                        page === 1 ||
+                        page === pagination.last_page ||
+                        (page >= pagination.current_page - 2 && 
+                         page <= pagination.current_page + 2)
+                      ) {
+                        return (
+                          <button
+                            key={page}
+                            className={
+                              pagination.current_page === page ? "active" : ""
+                            }
+                            onClick={() => handlePageChange(page)}
+                          >
+                            {page}
+                          </button>
+                        );
+                      } else if (
+                        page === pagination.current_page - 3 ||
+                        page === pagination.current_page + 3
+                      ) {
+                        return <span key={page} className="pagination-ellipsis">...</span>;
+                      }
+                      return null;
                     })}
 
                     <button
@@ -270,7 +343,7 @@ const Home = () => {
                         handlePageChange(pagination.current_page + 1)
                       }
                     >
-                      Next
+                      Next ›
                     </button>
                   </div>
                 )}

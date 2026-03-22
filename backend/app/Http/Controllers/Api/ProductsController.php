@@ -54,4 +54,9 @@ class ProductsController extends Controller
             'data' => $product
         ], 200);
     }
+
+    //them
+    public function them_sp(Request $request){
+        
+    }
 }
