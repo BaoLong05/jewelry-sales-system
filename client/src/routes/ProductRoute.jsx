@@ -1,5 +1,6 @@
 import HomePage from "../pages/Home/home";
 import NotFound from "../pages/NotFound/NotFound";
+import Cart from "../pages/Cart/cart";
 const ProductRoute = {
   path: "/",
   children: [
@@ -10,6 +11,10 @@ const ProductRoute = {
     {
         path: "*",
         element:<NotFound/>
+    },
+    {
+      path: "/Cart",
+      element: <Cart/>
     }
   ],
 };

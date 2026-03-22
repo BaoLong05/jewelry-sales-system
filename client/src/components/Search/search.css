@@ -221,11 +221,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-.result-icon {
-  font-size: 30px;
-  color: rgba(212, 175, 55, 0.3);
+.result-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 .result-info {
@@ -502,10 +505,6 @@
   .result-image {
     width: 50px;
     height: 50px;
-  }
-
-  .result-icon {
-    font-size: 24px;
   }
 }
 

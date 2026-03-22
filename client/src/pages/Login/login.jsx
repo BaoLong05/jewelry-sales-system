@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./login.css";
 import { toast } from "react-toastify";
 import { loginUser } from "../../utils/helper";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -37,8 +38,14 @@ const Login = () => {
       toast.success(res.message);
       console.log("User:", res.data);
       
-      // TODO: Xử lý lưu token, chuyển hướng, v.v.
-
+      // Lưu token vào localStorage
+      if (res.data && res.data.token) {
+        localStorage.setItem('auth_token', res.data.token);
+      }
+      
+      // Chuyển hướng đến trang Home
+      navigate('/');
+      
     } catch (error) {
       if (error.response) {
         const data = error.response.data;

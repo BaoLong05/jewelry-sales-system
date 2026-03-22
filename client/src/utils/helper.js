@@ -61,3 +61,34 @@ export const getProducts = async (params = {}) => {
   });
   return res.data;
 };
+
+// CART - Giỏ hàng
+// 1. lấy giỏ hàng
+export const getCart = async () => {
+  const res = await axios.get(apiUrl("cart"));
+  return res.data;
+};
+
+// 2. thêm sản phẩm vào giỏ hàng
+export const addToCart = async (data) => {
+  const res = await axios.post(apiUrl("cart/add"), data);
+  return res.data;
+};
+
+// 3. cập nhật số lượng sản phẩm trong giỏ hàng
+export const updateCartItem = async (itemId, quantity) => {
+  const res = await axios.put(apiUrl(`cart/items/${itemId}`), { quantity });
+  return res.data;
+};
+
+// 4. xóa sản phẩm khỏi giỏ hàng
+export const removeFromCart = async (itemId) => {
+  const res = await axios.delete(apiUrl(`cart/items/${itemId}`));
+  return res.data;
+};
+
+// 5. xóa toàn bộ giỏ hàng
+export const clearCart = async () => {
+  const res = await axios.post(apiUrl("cart/clear"));
+  return res.data;
+};
