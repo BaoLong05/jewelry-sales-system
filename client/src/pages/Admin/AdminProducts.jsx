@@ -31,16 +31,31 @@ const AdminProducts = () => {
     last_page: 1,
     total: 0
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
 
-  const fetchProducts = async (page = 1) => {
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
+
+  const fetchProducts = async (page = 1, search = "") => {
     try {
       setLoading(true);
-      const res = await getProducts({ page });
+      const params = { page };
+      if (search) {
+        params.search = search;
+      }
+      const res = await getProducts(params);
       if (res.success) {
         setProducts(res.data.data);
         setPagination({
@@ -66,6 +81,23 @@ const AdminProducts = () => {
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
+  };
+
+  const handleSearch = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    
+    // Clear previous timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    // Set new timeout for debounced search
+    const timeout = setTimeout(() => {
+      fetchProducts(1, term);
+    }, 500); // 500ms delay
+    
+    setSearchTimeout(timeout);
   };
 
   const handleInputChange = (e) => {
@@ -118,7 +150,7 @@ const AdminProducts = () => {
         category_id: "",
         images: []
       });
-      fetchProducts();
+      fetchProducts(1, searchTerm);
     } catch (error) {
       toast.error(editingProduct ? "Cập nhật thất bại" : "Thêm sản phẩm thất bại");
       console.error(error);
@@ -131,7 +163,7 @@ const AdminProducts = () => {
         const res = await deleteProduct(product.id);
         if (res.success) {
           toast.success("Xóa sản phẩm thành công");
-          fetchProducts();
+          fetchProducts(1, searchTerm);
         }
       } catch (error) {
         toast.error("Xóa sản phẩm thất bại");
@@ -196,19 +228,46 @@ const AdminProducts = () => {
           <div className="loading-spinner"></div>
           <p>Đang tải sản phẩm...</p>
         </div>
-      ) : products.length === 0 ? (
-        <div className="empty-state">
-          <span className="empty-icon">📦</span>
-          <h3>Chưa có sản phẩm</h3>
-          <p>Hãy thêm sản phẩm đầu tiên vào hệ thống</p>
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            + Thêm sản phẩm
-          </button>
-        </div>
       ) : (
         <>
-          <div className="products-table-container">
-            <table className="admin-table">
+          {/* Search Bar - Always visible */}
+          <div className="search-container">
+            <div className="search-input-wrapper">
+              <input
+                type="text"
+                placeholder=" Tìm kiếm sản phẩm theo tên..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="search-input"
+              />
+              {searchTerm && (
+                <button 
+                  className="clear-search"
+                  onClick={() => {
+                    setSearchTerm("");
+                    fetchProducts(1, "");
+                  }}
+                  title="Xóa tìm kiếm"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          {products.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon">📦</span>
+              <h3>{searchTerm ? `Không tìm thấy sản phẩm "${searchTerm}"` : "Chưa có sản phẩm"}</h3>
+              <p>{searchTerm ? "Hãy thử từ khóa khác hoặc thêm sản phẩm mới" : "Hãy thêm sản phẩm đầu tiên vào hệ thống"}</p>
+              <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                + Thêm sản phẩm
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="products-table-container">
+                <table className="admin-table">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -268,40 +327,42 @@ const AdminProducts = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+              </div>
 
-          {/* Pagination */}
-          {pagination.last_page > 1 && (
-            <div className="products-pagination">
-              <div className="pagination-info">
-                Hiển thị {(pagination.current_page - 1) * 20 + 1} - {Math.min(pagination.current_page * 20, pagination.total)} trong {pagination.total} sản phẩm
-              </div>
-              <div className="pagination-buttons">
-                <button
-                  className="pagination-btn"
-                  disabled={pagination.current_page === 1}
-                  onClick={() => fetchProducts(pagination.current_page - 1)}
-                >
-                  ‹ Trước
-                </button>
-                {[...Array(pagination.last_page)].map((_, i) => (
-                  <button
-                    key={i + 1}
-                    className={`pagination-btn ${pagination.current_page === i + 1 ? 'active' : ''}`}
-                    onClick={() => fetchProducts(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                <button
-                  className="pagination-btn"
-                  disabled={pagination.current_page === pagination.last_page}
-                  onClick={() => fetchProducts(pagination.current_page + 1)}
-                >
-                  Sau ›
-                </button>
-              </div>
-            </div>
+              {/* Pagination */}
+              {pagination.last_page > 1 && (
+                <div className="products-pagination">
+                  <div className="pagination-info">
+                    Hiển thị {(pagination.current_page - 1) * 20 + 1} - {Math.min(pagination.current_page * 20, pagination.total)} trong {pagination.total} sản phẩm
+                  </div>
+                  <div className="pagination-buttons">
+                    <button
+                      className="pagination-btn"
+                      disabled={pagination.current_page === 1}
+                      onClick={() => fetchProducts(pagination.current_page - 1, searchTerm)}
+                    >
+                      ‹ Trước
+                    </button>
+                    {[...Array(pagination.last_page)].map((_, i) => (
+                      <button
+                        key={i + 1}
+                        className={`pagination-btn ${pagination.current_page === i + 1 ? 'active' : ''}`}
+                        onClick={() => fetchProducts(i + 1, searchTerm)}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                    <button
+                      className="pagination-btn"
+                      disabled={pagination.current_page === pagination.last_page}
+                      onClick={() => fetchProducts(pagination.current_page + 1, searchTerm)}
+                    >
+                      Sau ›
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

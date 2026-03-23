@@ -20,10 +20,18 @@ class ProductsController extends Controller
             'category_id' => 'nullable|integer'
         ]);
 
+       
+
         $query = Product::with('images');
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('material', 'like', '%' . $searchTerm . '%');
+            });
+            
         }
 
         if ($request->filled('category_id')) {
@@ -31,6 +39,8 @@ class ProductsController extends Controller
         }
 
         $products = $query->latest()->paginate(20);
+
+        
 
         return response()->json([
             'success' => true,
