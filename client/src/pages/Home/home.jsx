@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header/header";
 import Footer from "../../components/Footer/footer";
 import "./home.css";
 import { getProducts, BASE_URL, addToCart } from "../../utils/helper";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -129,6 +131,11 @@ const Home = () => {
     }
   };
 
+  // ================= VIEW PRODUCT DETAIL =================
+  const handleViewProduct = (productId) => {
+    navigate(`/product/${productId}`);
+  };
+
   // ================= PRICE FORMAT =================
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -229,6 +236,7 @@ const Home = () => {
                         key={product.id}
                         className="product-card animate-on-scroll"
                         style={{ animationDelay: `${index * 0.1}s` }}
+                        onClick={() => handleViewProduct(product.id)}
                       >
                         {product.stock < 5 && product.stock > 0 && (
                           <div className="product-badge">SẮP HẾT</div>
@@ -251,13 +259,20 @@ const Home = () => {
                           <div className="product-actions">
                             <button 
                               className="product-action"
-                              onClick={() => handleAddToCart(product)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCart(product);
+                              }}
                               aria-label="Thêm vào giỏ hàng"
                             >
                               🛒
                             </button>
                             <button 
                               className="product-action"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewProduct(product.id);
+                              }}
                               aria-label="Xem nhanh"
                             >
                               👁
@@ -283,7 +298,10 @@ const Home = () => {
 
                           <button
                             className="product-btn"
-                            onClick={() => handleAddToCart(product)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToCart(product);
+                            }}
                           >
                             THÊM VÀO GIỎ
                           </button>
