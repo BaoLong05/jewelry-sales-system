@@ -1,7 +1,8 @@
 import HomePage from "../pages/Home/home";
 import NotFound from "../pages/NotFound/NotFound";
 import Cart from "../pages/Cart/cart";
-const ProductRoute = {
+import ProductDetails from '../pages/ProductDetail/ProductDetail';
+const ProductRoute = {  
   path: "/",
   children: [
     {
@@ -15,6 +16,10 @@ const ProductRoute = {
     {
       path: "/Cart",
       element: <Cart/>
+    },
+    {
+      path: "/product/:id",
+      element: <ProductDetails/>
     }
   ],
 };

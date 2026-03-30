@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\CartsController;
+use App\Http\Controllers\Api\ProductDetailsController;
 
 
 //auth

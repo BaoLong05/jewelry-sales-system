@@ -62,6 +62,28 @@ export const getProducts = async (params = {}) => {
   return res.data;
 };
 
+// 2. chi tiết sản phẩm
+export const getProductById = async (id) => {
+  const res = await axios.get(apiUrl(`products/${id}`));
+  return res.data;
+};
+
+// 3. sản phẩm liên quan
+export const getRelatedProducts = async (categoryId, excludeId) => {
+  try {
+    const res = await getProducts({ category_id: categoryId });
+    if (res.success && res.data && res.data.data) {
+      const products = res.data.data.filter(product => product.id != excludeId);
+      return { success: true, data: products.slice(0, 4) };
+    } else {
+      return { success: false, data: [] };
+    }
+  } catch (error) {
+    console.error("Error fetching related products:", error);
+    return { success: false, data: [] };
+  }
+};
+
 // CART - Giỏ hàng
 // 1. lấy giỏ hàng
 export const getCart = async () => {
